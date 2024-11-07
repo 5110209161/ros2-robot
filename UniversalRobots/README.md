@@ -5,6 +5,14 @@ UR3:
 ros2 launch ur3_ros2_gazebo ur3_simulation.launch.py
 ```
 
+UR3E:
+```sh
+ros2 launch ur3e_ros2_gazebo ur3e_visualize.launch.py
+```
+```sh
+ros2 launch ur3e_ros2_gazebo ur3e_simulation.launch.py
+```
+
 UR5:
 ```sh
 ros2 launch ur5_ros2_gazebo ur5_simulation.launch.py

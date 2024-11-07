@@ -32,8 +32,11 @@ The IFRA Group in Cranfield University (Bedfordshire, UK) has identified a huge 
 
 Part of the robots are still not working:
 
-- UR5 Robot
-- UR10 robot
+- UR3 (moveit failed)
+- UR5 Robot (all failed)
+- UR10 robot (all failed)
 - Fanuc CR35iA (poor model)
 
-So in my repository, reuse the working robots and follow its structure to support more robots.
+Recomand to use the official UR repository.
+
+In my repository, reuse the working robots and follow its structure to support more robots.

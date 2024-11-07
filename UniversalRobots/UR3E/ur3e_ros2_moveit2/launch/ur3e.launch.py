@@ -3,59 +3,44 @@
 # Launch file for the UR3 ROBOT GAZEBO + MoveIt!2 SIMULATION in ROS2 Humble:
 
 # Import libraries:
+import os
+
 from launch_ros.actions import Node
-from launch_ros.parameter_descriptions import ParameterFile, ParameterValue
 from launch_ros.substitutions import FindPackageShare
+from ur3e_ros2_moveit2.launch_common import load_yaml
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction
-from launch.conditions import IfCondition, UnlessCondition
+from launch.conditions import IfCondition
 from launch.substitutions import (
-    AndSubstitution,
     Command,
     FindExecutable,
     LaunchConfiguration,
-    NotSubstitution,
     PathJoinSubstitution,
+    OrSubstitution,
 )
+
 
 def launch_setup(context, *args, **kwargs):
 
     # Initialize Arguments
     ur_type = LaunchConfiguration("ur_type")
-    robot_ip = LaunchConfiguration("robot_ip")
+    use_fake_hardware = LaunchConfiguration("use_fake_hardware")
     safety_limits = LaunchConfiguration("safety_limits")
     safety_pos_margin = LaunchConfiguration("safety_pos_margin")
     safety_k_position = LaunchConfiguration("safety_k_position")
     # General arguments
-    runtime_config_package = LaunchConfiguration("runtime_config_package")
-    controllers_file = LaunchConfiguration("controllers_file")
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")
-    kinematics_params_file = LaunchConfiguration("kinematics_params_file")
-    tf_prefix = LaunchConfiguration("tf_prefix")
-    use_fake_hardware = LaunchConfiguration("use_fake_hardware")
-    fake_sensor_commands = LaunchConfiguration("fake_sensor_commands")
-    controller_spawner_timeout = LaunchConfiguration("controller_spawner_timeout")
-    initial_joint_controller = LaunchConfiguration("initial_joint_controller")
-    activate_joint_controller = LaunchConfiguration("activate_joint_controller")
+    _publish_robot_description_semantic = LaunchConfiguration("publish_robot_description_semantic")
+    moveit_config_package = LaunchConfiguration("moveit_config_package")
+    moveit_joint_limits_file = LaunchConfiguration("moveit_joint_limits_file")
+    moveit_config_file = LaunchConfiguration("moveit_config_file")
+    # warehouse_sqlite_path = LaunchConfiguration("warehouse_sqlite_path")
+    prefix = LaunchConfiguration("prefix")
+    use_sim_time = LaunchConfiguration("use_sim_time")
     launch_rviz = LaunchConfiguration("launch_rviz")
-    headless_mode = LaunchConfiguration("headless_mode")
-    launch_dashboard_client = LaunchConfiguration("launch_dashboard_client")
-    use_tool_communication = LaunchConfiguration("use_tool_communication")
-    tool_parity = LaunchConfiguration("tool_parity")
-    tool_baud_rate = LaunchConfiguration("tool_baud_rate")
-    tool_stop_bits = LaunchConfiguration("tool_stop_bits")
-    tool_rx_idle_chars = LaunchConfiguration("tool_rx_idle_chars")
-    tool_tx_idle_chars = LaunchConfiguration("tool_tx_idle_chars")
-    tool_device_name = LaunchConfiguration("tool_device_name")
-    tool_tcp_port = LaunchConfiguration("tool_tcp_port")
-    tool_voltage = LaunchConfiguration("tool_voltage")
-    reverse_ip = LaunchConfiguration("reverse_ip")
-    script_command_port = LaunchConfiguration("script_command_port")
-    reverse_port = LaunchConfiguration("reverse_port")
-    script_sender_port = LaunchConfiguration("script_sender_port")
-    trajectory_port = LaunchConfiguration("trajectory_port")
+    launch_servo = LaunchConfiguration("launch_servo")
 
     joint_limit_params = PathJoinSubstitution(
         [FindPackageShare(description_package), "config", "joint_limits.yaml"]
@@ -117,8 +102,6 @@ def launch_setup(context, *args, **kwargs):
         ]
     )
     robot_description = {"robot_description": robot_description_content}
-
-
 
     # MoveIt Configuration
     robot_description_semantic_content = Command(
@@ -274,7 +257,6 @@ def generate_launch_description():
     declared_arguments.append(
         DeclareLaunchArgument(
             "ur_type",
-            default_value="ur3e",
             description="Type/series of used UR robot.",
             choices=["ur3", "ur3e", "ur5", "ur5e", "ur10", "ur10e", "ur16e", "ur20", "ur30"],
         )
@@ -352,13 +334,13 @@ def generate_launch_description():
             description="MoveIt joint limits that augment or override the values from the URDF robot_description.",
         )
     )
-    declared_arguments.append(
-        DeclareLaunchArgument(
-            "warehouse_sqlite_path",
-            default_value=os.path.expanduser("~/.ros/warehouse_ros.sqlite"),
-            description="Path where the warehouse database should be stored",
-        )
-    )
+    # declared_arguments.append(
+    #     DeclareLaunchArgument(
+    #         "warehouse_sqlite_path",
+    #         default_value=os.path.expanduser("~/.ros/warehouse_ros.sqlite"),
+    #         description="Path where the warehouse database should be stored",
+    #     )
+    # )
     declared_arguments.append(
         DeclareLaunchArgument(
             "use_sim_time",

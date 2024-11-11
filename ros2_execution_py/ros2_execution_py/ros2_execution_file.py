@@ -104,6 +104,7 @@ class eePARAM(Node):
                 CloseProgram.CLOSE()
         P_CHECK_EE = True
 
+
 PARAM_WS = 'default'  # workspace name
 P_CHECK_PATH = False
 class PathPARAM(Node):
@@ -133,7 +134,7 @@ def main(args=None):
     nodeLOG = rclpy.create_node('node_LOG')
 
     print('')
-    print('Python script -> ros2_execution.py')
+    print('Python script -> ros2_execution_file.py')
     print('')
 
     # 1. initialize received ROS2 parameters

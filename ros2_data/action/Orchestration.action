@@ -1,0 +1,6 @@
+# dynamic type Goal, serializing from a JSON
+string goal
+---
+string result
+---
+string feedback

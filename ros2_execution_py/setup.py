@@ -20,7 +20,9 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'ros2_execution_file = ros2_execution_py.ros2_execution_file:main'
+            'ros2_execution_file = ros2_execution_py.ros2_execution_file:main',
+            'ros2_orchestration_client = ros2_execution_py.ros2_orchestration_client:main',
+            'ros2_orchestration_server = ros2_execution_py.ros2_orchestration_server:main'
         ],
     },
 )

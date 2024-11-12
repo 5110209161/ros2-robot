@@ -24,7 +24,8 @@
 2. **Start with mock hardware**
    <p align="left">(<a href="https://docs.universal-robots.com/Universal_Robots_ROS2_Documentation/doc/ur_robot_driver/ur_robot_driver/doc/usage/toc.html">link to usage</a>)</p>
    ```bash
-   ros2 launch ur_robot_driver ur_control.launch.py ur_type:=<ur_type> robot_ip:=yyy.yyy.yyy.yyy use_fake_hardware:=true
+   ros2 launch ur_robot_driver ur_control.launch.py ur_type:=<ur_type> robot_ip:=yyy.yyy.yyy.yyy use_fake_hardware:=true launch_rviz:=false
+   ros2 launch ur_moveit_config ur_moveit.launch.py ur_type:=<ur_type> launch_rviz:=true
    ```
 
 3. **Start with UR simulator**

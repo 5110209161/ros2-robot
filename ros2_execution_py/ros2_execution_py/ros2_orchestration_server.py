@@ -5,6 +5,8 @@ from rclpy.node import Node
 from rclpy.action import ActionServer, GoalResponse, CancelResponse
 from rclpy.action.server import ServerGoalHandle
 from ros2_data.action import Orchestration
+from rclpy.executors import MultiThreadedExecutor
+from rclpy.callback_groups import ReentrantCallbackGroup
 
 import json
 
@@ -17,7 +19,8 @@ class OrchestrationServer(Node):
             goal_callback = self.goal_callback,
             cancel_callback = self.cancel_callback,
             handle_accepted_callback = self.handle_accepted_callback,
-            execute_callback = self.execute_callback
+            execute_callback = self.execute_callback,
+            callback_group=ReentrantCallbackGroup()
         )
         self.get_logger().info('Orchestration Action Server has been started')
     
@@ -48,7 +51,7 @@ class OrchestrationServer(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = OrchestrationServer()
-    rclpy.spin(node)
+    rclpy.spin(node, MultiThreadedExecutor())
     rclpy.shutdown()
 
 

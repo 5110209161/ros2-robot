@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 # Import libraries:
+import os
 from launch import LaunchDescription
 from launch.actions import (
     DeclareLaunchArgument,
@@ -8,12 +9,13 @@ from launch.actions import (
     OpaqueFunction,
     RegisterEventHandler,
 )
-from launch.conditions import IfCondition, UnlessCondition
+from launch.conditions import IfCondition
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
+from ament_index_python.packages import get_package_share_directory
 
 
 def generate_launch_description():
@@ -57,9 +59,18 @@ def generate_launch_description():
     controllers_file = LaunchConfiguration("controllers_file")
     gazebo_gui = LaunchConfiguration("gazebo_gui")
     launch_rviz = LaunchConfiguration("launch_rviz")
+    gazebo_ros_dir = get_package_share_directory("gazebo_ros")
 
     rviz_config_file = PathJoinSubstitution(
         [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
+    )
+
+    rviz_node = Node(
+        package="rviz2",
+        executable="rviz2",
+        name="rviz2",
+        output="log",
+        arguments=["-d", rviz_config_file],
     )
     
     def create_robot_description(context):
@@ -70,9 +81,6 @@ def generate_launch_description():
                 PathJoinSubstitution([FindExecutable(name="xacro")]),
                 " ",
                 PathJoinSubstitution([FindPackageShare(description_package), "xacro", description_file]),
-                " ",
-                "tm_type:=",
-                tm_type,
             ]
         )
         robot_description = {"robot_description": robot_description_content}
@@ -80,7 +88,7 @@ def generate_launch_description():
             package="robot_state_publisher",
             executable="robot_state_publisher",
             output="both",
-            parameters=[robot_description],
+            parameters=[robot_description, {"use_sim_time": True},],
         )]
 
     robot_state_publisher_node = OpaqueFunction(function=create_robot_description)
@@ -89,14 +97,6 @@ def generate_launch_description():
         package="controller_manager",
         executable="spawner",
         arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
-    )
-
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
     )
 
     # Delay rviz start after `joint_state_broadcaster`
@@ -108,15 +108,28 @@ def generate_launch_description():
         condition=IfCondition(launch_rviz),
     )
 
-    # initial_joint_controllers = PathJoinSubstitution(
-    #     [FindPackageShare(description_package), "config", controllers_file]
-    # )
+    ros2_controllers_path = PathJoinSubstitution(
+        [FindPackageShare(description_package), "config", controllers_file]
+    )
+    ros2_control_node = Node(
+        package='controller_manager',
+        executable='ros2_control_node',
+        parameters=[ros2_controllers_path],
+        remappings=[
+            ('/controller_manager/robot_description', '/robot_description'),
+        ],
+        output='both',
+    )
 
-    # initial_joint_controller_spawner = Node(
-    #     package="controller_manager",
-    #     executable="spawner",
-    #     arguments=[initial_joint_controllers, "-c", "/controller_manager"],
-    # )
+    tm_arm_controller_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=[
+            "tmr_arm_controller",
+            "--controller-manager",
+            "/controller_manager"
+        ]
+    )
 
     gazebo = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -130,7 +143,7 @@ def generate_launch_description():
         package="gazebo_ros",
         executable="spawn_entity.py",
         name="spawn_tm",
-        arguments=["-entity", "tms", "-topic", "robot_description"],
+        arguments=["-entity", "tm", "-topic", "robot_description"],
         output="screen"
     )
 
@@ -138,7 +151,7 @@ def generate_launch_description():
         robot_state_publisher_node,
         joint_state_broadcaster_spawner,
         delay_rviz_after_joint_state_broadcaster_spawner,
-        # initial_joint_controller_spawner,
+        tm_arm_controller_spawner,
         gazebo,
         gazebo_spawn_robot
     ]

@@ -100,17 +100,19 @@ def generate_launch_description():
     )
 
     # Delay rviz start after `joint_state_broadcaster`
-    delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-        event_handler=OnProcessExit(
-            target_action=joint_state_broadcaster_spawner,
-            on_exit=[rviz_node],
-        ),
-        condition=IfCondition(launch_rviz),
+    # delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
+    #     event_handler=OnProcessExit(
+    #         target_action=joint_state_broadcaster_spawner,
+    #         on_exit=[rviz_node],
+    #     ),
+    #     condition=IfCondition(launch_rviz),
+    # )
+
+    ros2_controllers_path = os.path.join(
+        get_package_share_directory("tm_ros2_gazebo"),
+        "config/tm_controllers.yaml"
     )
 
-    ros2_controllers_path = PathJoinSubstitution(
-        [FindPackageShare(description_package), "config", controllers_file]
-    )
     ros2_control_node = Node(
         package='controller_manager',
         executable='ros2_control_node',
@@ -121,6 +123,14 @@ def generate_launch_description():
         output='both',
     )
 
+    # Joint STATE BROADCASTER:
+    joint_state_broadcaster_spawner = Node(
+        package="controller_manager",
+        executable="spawner",
+        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+    )
+
+    # Joint TRAJECTORY Controller:
     tm_arm_controller_spawner = Node(
         package="controller_manager",
         executable="spawner",
@@ -143,14 +153,15 @@ def generate_launch_description():
         package="gazebo_ros",
         executable="spawn_entity.py",
         name="spawn_tm",
-        arguments=["-entity", "tm", "-topic", "robot_description"],
+        arguments=["-entity", "tm5-900", "-topic", "robot_description"],
         output="screen"
     )
 
     nodes_to_start = [
         robot_state_publisher_node,
+        # delay_rviz_after_joint_state_broadcaster_spawner,
+        ros2_control_node,
         joint_state_broadcaster_spawner,
-        delay_rviz_after_joint_state_broadcaster_spawner,
         tm_arm_controller_spawner,
         gazebo,
         gazebo_spawn_robot

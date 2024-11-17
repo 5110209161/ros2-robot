@@ -131,6 +131,119 @@ def generate_launch_description():
             {"ROB_PARAM": 'tmr_arm'}
         ]
     )
+    # MoveG Action
+    # moveG_interface = Node(
+    #     name="moveG_action",
+    #     package="ros2_actions",
+    #     executable="moveG_action",
+    #     output="screen",
+    #     parameters=[
+    #         moveit_config.robot_description,
+    #         moveit_config.robot_description_semantic,
+    #         moveit_config.robot_description_kinematics,
+    #         {"use_sim_time": True}, 
+    #         {"ROB_PARAM": }
+    #     ]
+    # )
+    # MoveXYZW Action
+    moveXYZW_interface = Node(
+        name="moveXYZW_action",
+        package="ros2_actions",
+        executable="moveXYZW_action",
+        output="screen",
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            {"use_sim_time": True}, 
+            {"ROB_PARAM": 'tmr_arm'}
+        ]
+    )
+    # MoveL Action
+    moveL_interface = Node(
+        name="moveL_action",
+        package="ros2_actions",
+        executable="moveL_action",
+        output="screen",
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            {"use_sim_time": True}, 
+            {"ROB_PARAM": 'tmr_arm'}
+        ]
+    )
+    # MoveR Action
+    moveR_interface = Node(
+        name="moveR_action",
+        package="ros2_actions",
+        executable="moveR_action",
+        output="screen",
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            {"use_sim_time": True}, 
+            {"ROB_PARAM": 'tmr_arm'}
+        ]
+    )
+    # MoveXYZ Action
+    moveXYZ_interface = Node(
+        name="moveXYZ_action",
+        package="ros2_actions",
+        executable="moveXYZ_action",
+        output="screen",
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            {"use_sim_time": True}, 
+            {"ROB_PARAM": 'tmr_arm'}
+        ]
+    )
+    # MoveYPR Action
+    moveYPR_interface = Node(
+        name="moveYPR_action",
+        package="ros2_actions",
+        executable="moveYPR_action",
+        output="screen",
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            {"use_sim_time": True}, 
+            {"ROB_PARAM": 'tmr_arm'}
+        ]
+    )
+    # MoveROT Action
+    moveROT_interface = Node(
+        name="moveROT_action",
+        package="ros2_actions",
+        executable="moveROT_action",
+        output="screen",
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            {"use_sim_time": True}, 
+            {"ROB_PARAM": 'tmr_arm'}
+        ]
+    )
+    # MoveRP Action
+    # MoveRP ACTION:
+    moveRP_interface = Node(
+        name="moveRP_action",
+        package="ros2_actions",
+        executable="moveRP_action",
+        output="screen",
+        parameters=[
+            moveit_config.robot_description,
+            moveit_config.robot_description_semantic,
+            moveit_config.robot_description_kinematics,
+            {"use_sim_time": True}, 
+            {"ROB_PARAM": 'tmr_arm'}
+        ]
+    )
 
     return LaunchDescription(
         [
@@ -145,7 +258,14 @@ def generate_launch_description():
             TimerAction(
                 period=2.0,
                 actions=[
-                    moveJ_interface
+                    moveJ_interface,
+                    moveXYZW_interface,
+                    moveL_interface,
+                    moveR_interface,
+                    moveXYZ_interface,
+                    moveYPR_interface,
+                    moveROT_interface,
+                    moveRP_interface
                 ]
             )
         ]

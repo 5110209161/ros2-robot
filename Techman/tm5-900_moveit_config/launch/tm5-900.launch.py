@@ -1,15 +1,13 @@
 #!/usr/bin/python3
 import os
-import sys
-import xacro
 import yaml
 from launch import LaunchDescription
 from launch_ros.actions import Node
 from ament_index_python.packages import get_package_share_directory
-from launch.substitutions import Command, FindExecutable, PathJoinSubstitution, LaunchConfiguration
+from launch.substitutions import Command, FindExecutable, PathJoinSubstitution
 from launch_ros.substitutions import FindPackageShare
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
 
+# *********** same launch function as defined in tm5-900_moveit.launch.py *********
 
 def load_file(package_name, file_path):
     package_path = get_package_share_directory(package_name)

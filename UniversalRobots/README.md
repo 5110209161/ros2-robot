@@ -1,4 +1,4 @@
-## From UR Official Repository
+## Current Repository
 <p align="left">(<a href="https://github.com/UniversalRobots">link to repo</a>)</p>
 
 ### Supported UR Robot Type
@@ -12,6 +12,23 @@
 - ur16e
 - ur20
 - ur30
+
+### Launch Simulation (RViz) Environment
+
+```sh
+ros2 launch ur_ros2_gazebo ur_visualize.launch.py ur_type:=<ur_type>
+```
+
+### Launch Simulation (Gazebo) Environment
+
+```sh
+ros2 launch ur_ros2_gazebo ur_simulation.launch.py ur_type:=<ur_type>
+```
+
+
+
+## From UR Official Repository
+<p align="left">(<a href="https://github.com/UniversalRobots">link to repo</a>)</p>
 
 ### Getting Started
 

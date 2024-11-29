@@ -25,6 +25,12 @@ ros2 launch ur_ros2_gazebo ur_visualize.launch.py ur_type:=<ur_type>
 ros2 launch ur_ros2_gazebo ur_simulation.launch.py ur_type:=<ur_type>
 ```
 
+### Launch MoveIt2 + Simulation (Gazebo) Environment
+
+```sh
+ros2 launch ur_ros2_moveit2 ur_moveit.launch.py ur_type:=<ur_type>
+```
+
 
 
 ## From UR Official Repository

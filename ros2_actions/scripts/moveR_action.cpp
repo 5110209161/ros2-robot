@@ -263,6 +263,19 @@ private:
             j5LL = -360;
             j6UL = 360;
             j6LL = -360;
+        } else if (my_param == "ur_manipulator"){
+            j1UL = 360;
+            j1LL = -360;
+            j2UL = 360;
+            j2LL = -360;
+            j3UL = 180;
+            j3LL = -180;
+            j4UL = 360;
+            j4LL = -360;
+            j5UL = 360;
+            j5LL = -360;
+            j6UL = 360;
+            j6LL = -360;
         } else if (my_param == "tmr_arm"){
             j1UL = 360;
             j1LL = -360;

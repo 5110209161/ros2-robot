@@ -33,9 +33,19 @@ ros2 launch ur_ros2_moveit2 ur_moveit.launch.py ur_type:=<ur_type>
 
 ### Launch Gazebo + MoveIt!2 Environment + ROS2 Robot Triggers/Actions
 
-UR3:
 ```sh
-ros2 launch ur3_ros2_moveit2 ur_interface.launch.py ur_type:=<ur_type>
+ros2 launch ur_ros2_moveit2 ur_interface.launch.py ur_type:=<ur_type>
+```
+
+### Launch MoveIt!2 Environment + ROS2 Robot Triggers/Actions with Simulation/Real Robot
+
+```sh
+# start robot simulator (mount ExternalControl-URCaps)
+sudo docker run --rm -it -v "${HOME}/ros2_reference/URSim/urcaps:/urcaps" universalrobots/ursim_e-series
+# launch robot driver
+ros2 launch ur_ros2_driver ur_driver.launch.py ur_type:=ur5e robot_ip:=172.17.0.2
+# launch moveit and actions
+ros2 launch ur_ros2_driver ur_driver_interface.launch.py ur_type:=ur5e
 ```
 
 
@@ -72,10 +82,19 @@ ros2 launch ur3_ros2_moveit2 ur_interface.launch.py ur_type:=<ur_type>
    docker run --rm -it -p 5900:5900 -p 6080:6080 universalrobots/ursim_e-series
    ```
    You can view the polyscope GUI by opening http://192.168.56.101:6080/vnc.html.
+   For controling robot you should install ExternalControl-URCaps, see: https://hub.docker.com/r/universalrobots/ursim_e-series
+   ```
+   docker run --rm -it -v "${HOME}/urcaps:/urcaps" universalrobots/ursim_e-series
+   ```
+   And you should also program the vrobot to enable external control function, see: https://github.com/UniversalRobots/Universal_Robots_ROS2_Driver/blob/humble/ur_robot_driver/doc/installation/install_urcap_e_series.rst
 
    3. control simulate robot
    ```bash
    ros2 launch ur_robot_driver ur_control.launch.py ur_type:=<ur_type> robot_ip:=192.168.56.101 launch_rviz:=true
+   ```
+   The *scaled_joint_trajectory_controller* will stay inactive, if to start the controller with active, set the *headless_mode*
+   ```bash
+   ros2 launch ur_robot_driver ur_control.launch.py ur_type:=<ur_type> robot_ip:=192.168.56.101 launch_rviz:=true headless_mode:=true
    ```
 
 

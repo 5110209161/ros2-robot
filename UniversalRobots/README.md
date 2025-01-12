@@ -25,6 +25,26 @@ ros2 launch ur_ros2_gazebo ur_visualize.launch.py ur_type:=<ur_type>
 ros2 launch ur_ros2_gazebo ur_simulation.launch.py ur_type:=<ur_type>
 ```
 
+drive robot arm
+```sh
+ros2 topic pub --once /joint_trajectory_controller/joint_trajectory trajectory_msgs/JointTrajectory "{
+  header: {
+    stamp: {sec: 0, nanosec: 0},
+    frame_id: ''
+  },
+  joint_names: ['shoulder_pan_joint', 'shoulder_lift_joint', 'elbow_joint', 'wrist_1_joint', 'wrist_2_joint', 'wrist_3_joint'],
+  points: [
+    {
+      positions: [0.0, -1.57, 1.57, 0.0, 0.0, 0.0],
+      velocities: [],
+      accelerations: [],
+      effort: [],
+      time_from_start: {sec: 2, nanosec: 0}
+    }
+  ]
+}"
+```
+
 ### Launch MoveIt2 + Simulation (Gazebo) Environment
 
 ```sh

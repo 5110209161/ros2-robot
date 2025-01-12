@@ -1,9 +1,12 @@
 #!/usr/bin/python3
+import os
 from launch import LaunchDescription
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument, OpaqueFunction
+from launch.actions import DeclareLaunchArgument, OpaqueFunction, IncludeLaunchDescription
 from launch.substitutions import LaunchConfiguration, Command, PathJoinSubstitution, FindExecutable
 from launch_ros.substitutions import FindPackageShare
+from launch.launch_description_sources import PythonLaunchDescriptionSource
+from ament_index_python.packages import get_package_share_directory
 
 
 def launch_setup(context, *args, **kwargs):
@@ -31,24 +34,12 @@ def launch_setup(context, *args, **kwargs):
   )
   robot_description = {"robot_description": robot_description_content}
 
-  joint_state_publisher_node = Node(
-     package="joint_state_publisher_gui",
-      executable="joint_state_publisher_gui",
-  )
-
   robot_state_publisher_node = Node(
     package="robot_state_publisher",
     executable="robot_state_publisher",
     output="screen",
     parameters=[robot_description, {"use_sim_time": True}]
   )
-
-  # gazebo = IncludeLaunchDescription(
-  #   PythonLaunchDescriptionSource([
-  #     os.path.join(get_package_share_directory("gazebo_ros"), "launch"), "/gazebo.launch.py"
-  #     ]),
-  #     launch_arguments={}.items(),
-  # )
 
   rviz_config_file = PathJoinSubstitution(
      [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
@@ -62,14 +53,40 @@ def launch_setup(context, *args, **kwargs):
     arguments=["-d", rviz_config_file]
   )
 
-  # spawn_entity_node = Node(
-  #   package='gazebo_ros', 
-  #   executable='spawn_entity.py',
-  #   arguments=['-topic', 'robot_description',
-  #               '-entity', f"{robot_type_value}_robot"],
-  #   output='screen')
+  gazebo = IncludeLaunchDescription(
+    PythonLaunchDescriptionSource([
+      os.path.join(get_package_share_directory("gazebo_ros"), "launch"), "/gazebo.launch.py"
+      ]),
+      launch_arguments={}.items(),
+  )
+
+  spawn_entity_node = Node(
+    package='gazebo_ros', 
+    executable='spawn_entity.py',
+    arguments=['-topic', 'robot_description',
+                '-entity', f"{robot_type_value}_robot"],
+    output='screen')
   
-  return [joint_state_publisher_node, robot_state_publisher_node, rviz_node]
+  joint_state_brodcaster_spawner = Node(
+    package="controller_manager",
+    executable="spawner",
+    arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+  )
+
+  joint_trajectory_controller_spawner = Node(
+    package="controller_manager",
+    executable="spawner",
+    arguments=["dobot_arm_controller", "-c", "/controller_manager"],
+  )
+  
+  return [
+    robot_state_publisher_node, 
+    rviz_node,
+    gazebo,
+    spawn_entity_node,
+    joint_state_brodcaster_spawner,
+    joint_trajectory_controller_spawner
+  ]
 
 
 def generate_launch_description():
@@ -89,5 +106,5 @@ def generate_launch_description():
       choices=["cr3", "cr5", "cr7", "cr10", "cr12", "cr16", "nova2", "nova5"]
     )
   )
-
+  
   return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])

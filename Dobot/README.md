@@ -38,7 +38,10 @@ ros2 topic pub --once /dobot_arm_controller/joint_trajectory trajectory_msgs/Joi
 
 ### Launch MoveIt!2 Environment
 
-
+```sh
+ros2 launch cr3_moveit_config demo.launch.py
+ros2 launch cr3_moveit_config cr3_moveit.launch.py
+```
 
 ### Launch Gazebo + MoveIt!2 Environment + ROS2 Robot Triggers/Actions
 

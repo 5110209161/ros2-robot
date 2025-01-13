@@ -278,6 +278,19 @@ private:
             j5LL = -360;
             j6UL = 360;
             j6LL = -360;
+        } else if (my_param == "cr7_group") {
+            j1UL = 360;
+            j1LL = -360;
+            j2UL = 360;
+            j2LL = -360;
+            j3UL = 152;
+            j3LL = -152;
+            j4UL = 360;
+            j4LL = -360;
+            j5UL = 360;
+            j5LL = -360;
+            j6UL = 360;
+            j6LL = -360;
         };
 
         // Check if INPUT JOINT VALUES are within the JOINT LIMIT VALUES:

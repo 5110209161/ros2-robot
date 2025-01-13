@@ -1,0 +1,237 @@
+#!/usr/bin/python3
+import os
+from launch import LaunchDescription
+from launch_ros.actions import Node
+from moveit_configs_utils import MoveItConfigsBuilder
+from ament_index_python.packages import get_package_share_directory
+from launch.actions import TimerAction
+
+
+def generate_launch_description():
+  # Initialize Arguments
+  robot_type = "cr7"
+  xacro_path = "config/cr7_robot.urdf.xacro"
+  srdf_path = "config/cr7_robot.srdf"
+  moveit_controller_path = "config/moveit_controllers.yaml"
+  joint_limits_path = "config/joint_limits.yaml"
+
+  moveit_config_pkg_path = "cr7_moveit_config"
+  rviz_path = "/config/moveit.rviz"
+  ros2_control_controller_path = "config/ros2_controllers.yaml"
+  
+  moveit_config = (
+    MoveItConfigsBuilder(robot_type)
+    .robot_description(file_path=xacro_path)
+    .robot_description_semantic(file_path=srdf_path)
+    .trajectory_execution(file_path=moveit_controller_path)
+    .joint_limits(file_path=joint_limits_path)
+    .to_moveit_configs()
+  )
+
+  move_group_node = Node(
+    package="moveit_ros_move_group",
+    executable="move_group",
+    output="screen",
+    parameters=[
+      moveit_config.to_dict(),
+      {"use_sim_time": True},
+    ]
+  )
+
+  rviz_config_file = (
+    get_package_share_directory(moveit_config_pkg_path) + rviz_path
+  )
+  rviz_node = Node(
+    package="rviz2",
+    executable="rviz2",
+    name="rviz2",
+    output="log",
+    arguments=["-d", rviz_config_file],
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.planning_pipelines,
+      moveit_config.robot_description_kinematics,
+      moveit_config.joint_limits,
+      {"use_sim_time": True},
+    ]
+  )
+
+  robot_state_publisher_node = Node(
+    package="robot_state_publisher",
+    executable="robot_state_publisher",
+    name="robot_state_publisher",
+    output="both",
+    parameters=[
+      moveit_config.robot_description,
+      {"use_sim_time": True},
+    ],
+  )
+
+  ros2_controller_path = os.path.join(
+    get_package_share_directory(moveit_config_pkg_path),
+    ros2_control_controller_path
+  )
+
+  ros2_control_node = Node(
+    package="controller_manager",
+    executable="ros2_control_node",
+    parameters=[ros2_controller_path],
+    remappings=[
+      ("/controller_manager/robot_description", "/robot_description"),
+    ],
+    output="both",
+  )
+
+  joint_state_broadcaster_spawner_node = Node(
+    package="controller_manager",
+    executable="spawner",
+    arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+  )
+
+  joint_trajectory_controller_spawner_node = Node(
+    package="controller_manager",
+    executable="spawner",
+    arguments=[
+      "cr7_group_controller",
+      "--controller-manager",
+      "/controller_manager"
+    ]
+  )
+
+  # *********************** ROS2.0 Robot/End-Effector Actions/Triggers *********************** #
+  # MoveJ Action
+  moveJ_interface = Node(
+    name="moveJ_action",
+    package="ros2_actions",
+    executable="moveJ_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True},
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+  # MoveXYZW Action
+  moveXYZW_interface = Node(
+    name="moveXYZW_action",
+    package="ros2_actions",
+    executable="moveXYZW_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True}, 
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+  # MoveL Action
+  moveL_interface = Node(
+    name="moveL_action",
+    package="ros2_actions",
+    executable="moveL_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True}, 
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+  # MoveR Action
+  moveR_interface = Node(
+    name="moveR_action",
+    package="ros2_actions",
+    executable="moveR_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True}, 
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+  # MoveXYZ Action
+  moveXYZ_interface = Node(
+    name="moveXYZ_action",
+    package="ros2_actions",
+    executable="moveXYZ_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True}, 
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+  # MoveYPR Action
+  moveYPR_interface = Node(
+    name="moveYPR_action",
+    package="ros2_actions",
+    executable="moveYPR_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True}, 
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+  # MoveROT Action
+  moveROT_interface = Node(
+    name="moveROT_action",
+    package="ros2_actions",
+    executable="moveROT_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True}, 
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+  # MoveRP ACTION:
+  moveRP_interface = Node(
+    name="moveRP_action",
+    package="ros2_actions",
+    executable="moveRP_action",
+    output="screen",
+    parameters=[
+      moveit_config.robot_description,
+      moveit_config.robot_description_semantic,
+      moveit_config.robot_description_kinematics,
+      {"use_sim_time": True}, 
+      {"ROB_PARAM": "cr7_group"}
+    ]
+  )
+
+  return LaunchDescription([
+    rviz_node,
+    robot_state_publisher_node,
+    move_group_node,
+    ros2_control_node,
+    joint_state_broadcaster_spawner_node,
+    joint_trajectory_controller_spawner_node,
+    TimerAction(
+      period=2.0,
+      actions=[
+        moveJ_interface,
+        moveXYZW_interface,
+        moveL_interface,
+        moveR_interface,
+        moveXYZ_interface,
+        moveYPR_interface,
+        moveROT_interface,
+        moveRP_interface
+      ]
+    ),
+  ])
+

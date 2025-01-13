@@ -8,13 +8,13 @@ from ament_index_python.packages import get_package_share_directory
 
 def generate_launch_description():
   # Initialize Arguments
-  robot_type = "cr3"
-  xacro_path = "config/cr3_robot.urdf.xacro"
-  srdf_path = "config/cr3_robot.srdf"
+  robot_type = "cr7"
+  xacro_path = "config/cr7_robot.urdf.xacro"
+  srdf_path = "config/cr7_robot.srdf"
   moveit_controller_path = "config/moveit_controllers.yaml"
   joint_limits_path = "config/joint_limits.yaml"
 
-  moveit_config_pkg_path = "cr3_moveit_config"
+  moveit_config_pkg_path = "cr7_moveit_config"
   rviz_path = "/config/moveit.rviz"
   ros2_control_controller_path = "config/ros2_controllers.yaml"
   
@@ -92,7 +92,7 @@ def generate_launch_description():
     package="controller_manager",
     executable="spawner",
     arguments=[
-      "cr3_group_controller",
+      "cr7_group_controller",
       "--controller-manager",
       "/controller_manager"
     ]

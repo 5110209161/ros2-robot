@@ -1,0 +1,1 @@
+Some links have no geometry, can not render properly in RViz

@@ -32,8 +32,8 @@ def launch_setup(context, *args, **kwargs):
   robot_description = {"robot_description": robot_description_content}
 
   joint_state_publisher_node = Node(
-     package="joint_state_publisher_gui",
-      executable="joint_state_publisher_gui",
+    package="joint_state_publisher_gui",
+    executable="joint_state_publisher_gui",
   )
 
   robot_state_publisher_node = Node(

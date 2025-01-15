@@ -12,6 +12,7 @@ show robot in RViz
 ros2 launch dobot_ros2_gazebo dobot_visualize.launch.py robot_type:=<robot-type>
 ```
 
+TODO: no driver loaded
 show robot in Gazebo
 ```sh
 ros2 launch dobot_ros2_gazebo dobot_simulation.launch.py robot_type:=<robot-type>

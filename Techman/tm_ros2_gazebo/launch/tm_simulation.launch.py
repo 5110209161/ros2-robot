@@ -21,36 +21,36 @@ from ament_index_python.packages import get_package_share_directory
 def generate_launch_description():
     declared_arguments = []
     declared_arguments.append(
-        DeclareLaunchArgument(
-            "tm_type",
-            default_value="tm5-900",
-            description="Type/series of used Techman robot",
-            choices=["tm5-700", "tm5-900", "tm5x-700", "tm5x-900", "tm12", "tm12x", "tm14", "tm14x"]
-        )
+      DeclareLaunchArgument(
+        "tm_type",
+        default_value="tm5-900",
+        description="Type/series of used Techman robot",
+        choices=["tm5-700", "tm5-900", "tm5x-700", "tm5x-900", "tm12", "tm12x", "tm14", "tm14x"]
+      )
     )
     declared_arguments.append(
-        DeclareLaunchArgument(
-            "description_package",
-            default_value="tm_ros2_gazebo",
-            description="Description package with robot URDF/XACRO files. Usually the argument "
-            "is not set, it enables use of a custom description.",
-        )
+      DeclareLaunchArgument(
+        "description_package",
+        default_value="tm_ros2_gazebo",
+        description="Description package with robot URDF/XACRO files. Usually the argument "
+        "is not set, it enables use of a custom description.",
+      )
     )
     declared_arguments.append(
-        DeclareLaunchArgument(
-            "controllers_file",
-            default_value="tm_controllers.yaml",
-            description="YAML file with the controllers configuration"
-        )
+      DeclareLaunchArgument(
+        "controllers_file",
+        default_value="tm_controllers.yaml",
+        description="YAML file with the controllers configuration"
+      )
     )
     declared_arguments.append(
-        DeclareLaunchArgument(
-            "gazebo_gui", default_value="true", description="Start Gazebo with GUI"
-        )
-    )
+      DeclareLaunchArgument(
+        "gazebo_gui", default_value="true", description="Start Gazebo with GUI"
+      )
+  )
 
     declared_arguments.append(
-        DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz?")
+      DeclareLaunchArgument("launch_rviz", default_value="true", description="Launch RViz?")
     )
 
     # Initialize Arguments
@@ -60,111 +60,98 @@ def generate_launch_description():
     gazebo_gui = LaunchConfiguration("gazebo_gui")
     launch_rviz = LaunchConfiguration("launch_rviz")
     gazebo_ros_dir = get_package_share_directory("gazebo_ros")
-
-    rviz_config_file = PathJoinSubstitution(
-        [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
-    )
-
-    rviz_node = Node(
-        package="rviz2",
-        executable="rviz2",
-        name="rviz2",
-        output="log",
-        arguments=["-d", rviz_config_file],
-    )
     
     def create_robot_description(context):
-        tm_type_value = context.launch_configurations['tm_type']
-        description_file = f"{tm_type_value}.urdf.xacro"
-        robot_description_content = Command(
-            [
-                PathJoinSubstitution([FindExecutable(name="xacro")]),
-                " ",
-                PathJoinSubstitution([FindPackageShare(description_package), "xacro", description_file]),
-            ]
-        )
-        robot_description = {"robot_description": robot_description_content}
-        return [Node(
-            package="robot_state_publisher",
-            executable="robot_state_publisher",
-            output="both",
-            parameters=[robot_description, {"use_sim_time": True},],
-        )]
+      tm_type_value = context.launch_configurations['tm_type']
+      description_file = f"{tm_type_value}.urdf.xacro"
+      robot_description_content = Command(
+        [
+          PathJoinSubstitution([FindExecutable(name="xacro")]),
+          " ",
+          PathJoinSubstitution([FindPackageShare(description_package), "xacro", description_file]),
+          " ",
+          "tm_type:=",
+          tm_type
+        ]
+      )
+      robot_description = {"robot_description": robot_description_content}
+      return [Node(
+        package="robot_state_publisher",
+        executable="robot_state_publisher",
+        output="both",
+        parameters=[robot_description, {"use_sim_time": True},],
+      )]
 
     robot_state_publisher_node = OpaqueFunction(function=create_robot_description)
 
     joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+      package="controller_manager",
+      executable="spawner",
+      arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
     )
 
-    # Delay rviz start after `joint_state_broadcaster`
-    # delay_rviz_after_joint_state_broadcaster_spawner = RegisterEventHandler(
-    #     event_handler=OnProcessExit(
-    #         target_action=joint_state_broadcaster_spawner,
-    #         on_exit=[rviz_node],
-    #     ),
-    #     condition=IfCondition(launch_rviz),
-    # )
-
-    ros2_controllers_path = os.path.join(
-        get_package_share_directory("tm_ros2_gazebo"),
-        "config/tm_controllers.yaml"
+    rviz_config_file = PathJoinSubstitution(
+      [FindPackageShare(description_package), "rviz", "view_robot.rviz"]
     )
 
-    ros2_control_node = Node(
-        package='controller_manager',
-        executable='ros2_control_node',
-        parameters=[ros2_controllers_path],
-        remappings=[
-            ('/controller_manager/robot_description', '/robot_description'),
-        ],
-        output='both',
+    rviz_node = Node(
+      package="rviz2",
+      executable="rviz2",
+      name="rviz2",
+      output="log",
+      arguments=["-d", rviz_config_file],
+    )
+
+    gazebo = IncludeLaunchDescription(
+      PythonLaunchDescriptionSource(
+        [FindPackageShare("gazebo_ros"), "/launch", "/gazebo.launch.py"]
+      ),
+      launch_arguments={"gui": gazebo_gui}.items()
+    )
+    gazebo_spawn_robot = Node(
+      package="gazebo_ros",
+      executable="spawn_entity.py",
+      name="spawn_tm",
+      arguments=["-entity", "tm5-900", "-topic", "robot_description"],
+      output="screen"
     )
 
     # Joint STATE BROADCASTER:
     joint_state_broadcaster_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
+      package="controller_manager",
+      executable="spawner",
+      arguments=["joint_state_broadcaster", "--controller-manager", "/controller_manager"],
     )
 
     # Joint TRAJECTORY Controller:
     tm_arm_controller_spawner = Node(
-        package="controller_manager",
-        executable="spawner",
-        arguments=[
-            "tmr_arm_controller",
-            "--controller-manager",
-            "/controller_manager"
-        ]
+      package="controller_manager",
+      executable="spawner",
+      arguments=["tmr_arm_controller", "-c", "/controller_manager"]
     )
 
-    gazebo = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            [FindPackageShare("gazebo_ros"), "/launch", "/gazebo.launch.py"]
-        ),
-        launch_arguments={
-            "gui": gazebo_gui
-        }.items()
-    )
-    gazebo_spawn_robot = Node(
-        package="gazebo_ros",
-        executable="spawn_entity.py",
-        name="spawn_tm",
-        arguments=["-entity", "tm5-900", "-topic", "robot_description"],
-        output="screen"
-    )
+    # ros2_controllers_path = os.path.join(
+    #     get_package_share_directory("tm_ros2_gazebo"),
+    #     "config/tm_controllers.yaml"
+    # )
+
+    # ros2_control_node = Node(
+    #     package='controller_manager',
+    #     executable='ros2_control_node',
+    #     parameters=[ros2_controllers_path],
+    #     remappings=[
+    #         ('/controller_manager/robot_description', '/robot_description'),
+    #     ],
+    #     output='both',
+    # )
 
     nodes_to_start = [
-        robot_state_publisher_node,
-        # delay_rviz_after_joint_state_broadcaster_spawner,
-        ros2_control_node,
-        joint_state_broadcaster_spawner,
-        tm_arm_controller_spawner,
-        gazebo,
-        gazebo_spawn_robot
+      robot_state_publisher_node,
+      rviz_node,
+      gazebo,
+      gazebo_spawn_robot,
+      joint_state_broadcaster_spawner,
+      tm_arm_controller_spawner,
     ]
 
     return LaunchDescription(declared_arguments + nodes_to_start)

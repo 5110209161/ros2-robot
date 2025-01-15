@@ -14,9 +14,13 @@
 
 AUBO official repo still not support show robot in Gazebo
 
+```sh
+ros2 launch aubo_ros2_gazebo aubo_visualization.launch.py aubo_type:=<robot-type>
+```
+
 ### Launch MoveIt!2 Environment
 
-
+Official repo still run with error
 
 ### Launch Gazebo + MoveIt!2 Environment + ROS2 Robot Triggers/Actions
 

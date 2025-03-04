@@ -1,0 +1,9 @@
+float64 pallet_length
+float64 pallet_width
+float64 pallet_height
+
+float64 product_length
+float64 product_width
+float64 product_height
+---
+bool success
